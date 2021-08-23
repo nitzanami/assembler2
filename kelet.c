@@ -65,7 +65,6 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 		return invalid;
 	}
 	kv->line[kv->lineLength = i] = '\0';
-	printf("\n%s,end:%d,len:%d",kv->line,c,kv->lineLength);
 	kv->nextChar = kv->line;
 	if (c == EOF) /*end of current file*/
 	{
