@@ -84,7 +84,7 @@ enum errors addLabel(symboltable *symbolTable,char *label, keletVars *kv)
 /*this function adds a guidance line to the data image*/
 enum errors addGuidanceToData(dataimage *dataImage, keletVars *kv)
 {
-	int bytesToDivide, numberOfNums, lenOfCharArray;
+	int bytesToDivide = 0, numberOfNums, lenOfCharArray;
 	char *s;
 	enum errors e = valid;
 	if (kv->charsChecked >= kv->lineLength)
@@ -94,33 +94,42 @@ enum errors addGuidanceToData(dataimage *dataImage, keletVars *kv)
 	}
 	/*a dw\dh\db guidance, gets the proper amount of bytes that each number in the set should take.
 	adds the set to the data image if its valid*/
-	if ((bytesToDivide = (strcmp(kv->cmd, ".dw") == 0) ? DW_BYTES : (strcmp(kv->cmd, ".dh") == 0) ? DH_BYTES : (strcmp(kv->cmd, ".db") == 0) ? DB_BYTES : 0))
+	if(kv->cmd != NULL)
 	{
-		e = getSet(&numberOfNums, kv);
-		if (e == valid)
+		if(strcmp(kv->cmd, ".dw") == 0)
+			bytesToDivide = DW_BYTES;
+		else if(strcmp(kv->cmd, ".dh") == 0)
+			bytesToDivide = DH_BYTES;
+		else if(strcmp(kv->cmd, ".db") == 0)
+			bytesToDivide = DB_BYTES;
+			
+		if(bytesToDivide != 0)
 		{
-			e = check_d_set(&s, bytesToDivide, numberOfNums, kv);
-			if(e == valid)
+			e = getSet(&numberOfNums, kv);
+			if (e == valid)
 			{
-				lenOfCharArray = bytesToDivide * numberOfNums;
-				addData(dataImage, s, lenOfCharArray);
-				kv->dc += lenOfCharArray;
-				free(s);
+				e = check_d_set(&s, bytesToDivide, numberOfNums, kv);
+				if(e == valid)
+				{
+					lenOfCharArray = bytesToDivide * numberOfNums;
+					addData(dataImage, s, lenOfCharArray);
+					kv->dc += lenOfCharArray;
+					free(s);
+				}
 			}
 		}
-
-	}
-	else if (strcmp(kv->cmd, ".asciz") == 0)
-	{
-		e = getAscizArgument(&s,kv);
-		if(e == valid)
+		else if (strcmp(kv->cmd, ".asciz") == 0)
 		{
-			lenOfCharArray = strlen(s) + 1;
-			addData(dataImage, s, lenOfCharArray);
-			kv->dc += lenOfCharArray;
+			e = getAscizArgument(&s,kv);
+			if(e == valid)
+			{
+				lenOfCharArray = strlen(s) + 1;
+				addData(dataImage, s, lenOfCharArray);
+				kv->dc += lenOfCharArray;
+			}
 		}
-		
 	}
+	
 	return e;
 }
 

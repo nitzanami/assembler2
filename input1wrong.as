@@ -21,9 +21,7 @@ label3:.dw ,34
 label4:.asciz "dfdd
 .asciz sdfs"
 .asciz ssdf
-.entry labelDoesntExist
-.entry &notAlabel
-.entry
+
 .extern label2
 .extern &notAlabel
 .extern
