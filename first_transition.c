@@ -19,7 +19,7 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 	while (lineErr != eof) /*haven't reached the enf of the file*/
 	{
 		/*valid line and command*/
-		if (((lineErr = getCommandLine(fp, &kv)) == valid || lineErr == eof) && (lineErr != emptyLine) && ((err = getCommandName(&kv)) == valid))
+		if (((lineErr = getCommandLine(fp, &kv)) == valid || lineErr == eof) && ((err = getCommandName(&kv)) == valid))
 		{
 			if (kv.isLabel && !kv.isEntry) /*first transition ignores entries*/
 			{
@@ -39,7 +39,6 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 		/*an error occured*/
 		if ((err == invalid) || (lineErr == invalid))
 			isErrInFile = invalid;
-		
 	}
 	addIcToData(symbolTable, kv.ic);
 	*icf = kv.ic;

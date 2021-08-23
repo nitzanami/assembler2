@@ -5,33 +5,7 @@
 extern instruction instructionsArr[];
 
 extern int errno;
-int main(int argc, char** argv)
-{
-	int i, len;
-	keletVars kv;
-	FILE *fp;
-	enum errors e;
-	char *arg;
-	kv.file = "test";
-	kv.row = kv.dc = 0;
-	kv.ic = MEMORY_START_ADDRESS;
-	
-	fp= fopen(argv[1],"r");
-	e = getCommandLine(fp,&kv);
-	len = strlen(kv.line);
-	printf("%s\n",kv.line);
-	for(i=0; i< len;i++)
-		printf("%d,",kv.line[i]);
-	if(e == valid)
-		e = getCommandName(&kv);
-	
-	while((e = getArgument(&arg,&kv))==valid && strlen(arg) > 0);
-	for(i=0; i< len;i++)
-		printf("%d,",kv.line[i]);
-	printf("%d",e);
-	
-	return 0;
-}
+
 /*this function makes sure the file name is valid and if it is, opens the file to the pointer it gets*/
 enum errors getFile(keletVars *kv, FILE **fp)
 {
@@ -73,26 +47,28 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 	while (c != EOF && c != '\n') /*end of row or file*/
 	{
 		if (i < MAX_INPUT_LINE)
+		{
 			kv->line[i++] = c;
+		}
 		else
 		{
 			if (!isspace(c)) /*character after maximum allowed characters, line too long*/
 				e = invalid;
 		}
-		c = getc(fp);		
+		c = getc(fp);
 	}
-	
+
 	if (e == invalid)
 	{
 		printError("line too long");
 		return invalid;
 	}
 	kv->line[kv->lineLength = i] = '\0';
-	
+	printf("\n%s,end:%d",kv->line,c);
 	kv->nextChar = kv->line;
 	if(kv->lineLength == 0)
 		return emptyLine;
-	if (c == EOF && e == valid) /*end of current file*/
+	if ((c == EOF)&& e == valid) /*end of current file*/
 		return eof;
 	return e;
 }
@@ -120,14 +96,12 @@ enum errors getWord(char** word, keletVars *kv)
  returns valid if there were no errors, else invalid*/
 enum errors getArgument(char** arg,keletVars *kv)
 {
-	printf("%d\n",*kv->nextChar);
 	char c,*argEnd;
 	*arg = kv->nextChar;
-	while(!isspace(c = *kv->nextChar) && c != ',')
+	while(!isspace(c = *kv->nextChar) && c != ',' && c!= '\0')
 		kv->nextChar++;
 	
 	argEnd = kv->nextChar;
-	printf("\n%d\n",*argEnd);
 	removeWhitespaces();
 	
 	if((c = *kv->nextChar) == ',')
@@ -142,12 +116,10 @@ enum errors getArgument(char** arg,keletVars *kv)
 	}
 	else if(c != '\0')
 	{
-		printf("%d",*kv->nextChar);
 		printError("missing comma");
 		return invalid;
 	}
 	*argEnd = '\0';
-	printf("\n\"%s\"\n",*arg);
 	return valid;
 } 
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/

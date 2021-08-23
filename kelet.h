@@ -39,9 +39,6 @@ enum errors getArgument(char** arg,keletVars *kv);
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv);
 
-/*this function gets the label and checks if its valid. returns valid if the label is valid and a suitable error if not*/
-enum errors getLabel(keletVars *kv);
-
 /*this function checks if the word is a label*/
 int isLabel(char *word, keletVars *kv);
 
