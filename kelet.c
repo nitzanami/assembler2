@@ -296,6 +296,8 @@ enum errors my_atol(char w[], long *result)
 	char *str;
 	errno = 0;
 	
+	if(w[0] == '\0')
+		return invalid;
 	*result = strtol(w, &str, 10);
 	if (errno > 0 || strlen(str) > 0) /*the number is bigger than long*/
 		return invalid;

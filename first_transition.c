@@ -127,23 +127,12 @@ enum errors getSet(int *numberOfNums, keletVars *kv)
 {
 	long num, i = 0;
 	char *n;
-	
-	n = strtok(NULL, ","); /*get the string representing the number*/
-	while(n != NULL)
+	while(getArgument(&n,kv) == valid)
 	{
-		if (strlen(n) == 0)
+		if(my_atol(n,&num) == valid)
 		{
-			printError("extra comma");
-			return invalid;
+			kv->numbers[i++] = num;
 		}
-		if (my_atol(n, &num) == invalid)  /*not a long number*/
-		{
-			printError("not a long number");
-			return invalid;
-		}
-		kv->numbers[i++] = num;
-		n = strtok(NULL, ","); /*get the string representing the number*/
-
 	}
 	*numberOfNums = i;	
 	return valid;
