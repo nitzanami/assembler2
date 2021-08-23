@@ -1,11 +1,13 @@
 #include "kelet.h"
 #include <errno.h>
 
+#define removeWhitespaces() while(isspace(c = *(kv->nextChar))) kv->nextChar++
 extern instruction instructionsArr[];
 
 extern int errno;
 int main(int argc, char** argv)
 {
+	int i, len;
 	keletVars kv;
 	FILE *fp;
 	enum errors e;
@@ -15,18 +17,18 @@ int main(int argc, char** argv)
 	kv.ic = MEMORY_START_ADDRESS;
 	
 	fp= fopen(argv[1],"r");
-	
 	e = getCommandLine(fp,&kv);
+	len = strlen(kv.line);
+	printf("%s\n",kv.line);
+	for(i=0; i< len;i++)
+		printf("%d,",kv.line[i]);
 	if(e == valid)
 		e = getCommandName(&kv);
-	printf("\nlabel:%s\ncmd:%s\nerrors:%d\n",kv.label,kv.cmd,e);
-	if(getArgument(&arg,&kv)==valid)
-	{
-		if(getArgument(&arg,&kv)==valid)
-		{
-			getArgument(&arg,&kv);
-		}
-	}
+	
+	while((e = getArgument(&arg,&kv))==valid && strlen(arg) > 0);
+	for(i=0; i< len;i++)
+		printf("%d,",kv.line[i]);
+	printf("%d",e);
 	
 	return 0;
 }
@@ -97,53 +99,56 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 /*this function gets the next word (instruction,guidance or label) from the line,alerts on errors if there are any*/
 enum errors getWord(char** word, keletVars *kv)
 {
-	char c;
+	char c, *wordEnd;
 	*word = kv->nextChar;
 	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n')
 		kv->nextChar++;
+	wordEnd = kv->nextChar;
+	
+	removeWhitespaces();
 	if(c == ',')
 	{
 		printError("Extra comma before arguments");
 		return invalid;
 	}
-	*(kv->nextChar++) = '\0';
-	while(isspace(c = *(kv->nextChar)))
-		kv->nextChar++;
+	*(wordEnd) = '\0';
+	
+	removeWhitespaces();
 	return valid;
 }
 /*this function gets the next argument from the line into the arg parameter, and prints an error message if an error occoured
  returns valid if there were no errors, else invalid*/
 enum errors getArgument(char** arg,keletVars *kv)
 {
-	char *argEnd;
+	printf("%d\n",*kv->nextChar);
+	char c,*argEnd;
 	*arg = kv->nextChar;
-	
-	while(!isspace(*kv->nextChar) && *kv->nextChar != ',')
+	while(!isspace(c = *kv->nextChar) && c != ',')
 		kv->nextChar++;
 	
 	argEnd = kv->nextChar;
+	printf("\n%d\n",*argEnd);
+	removeWhitespaces();
 	
-	while(isspace(*kv->nextChar))
-		kv->nextChar++;
-	
-	if(*kv->nextChar == ',')
+	if((c = *kv->nextChar) == ',')
 	{
 		kv->nextChar++;
-		while(isspace(*kv->nextChar))
-			kv->nextChar++;
-		if(*kv->nextChar == '\0')
+		removeWhitespaces();
+		if((c = *kv->nextChar) == '\0' || c == ',')
 		{
 			printError("extra comma");
 			return invalid;
 		}
 	}
-	else if(*kv->nextChar != '\0')
+	else if(c != '\0')
 	{
+		printf("%d",*kv->nextChar);
 		printError("missing comma");
 		return invalid;
 	}
 	*argEnd = '\0';
-	return valid;	
+	printf("\n\"%s\"\n",*arg);
+	return valid;
 } 
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv)
