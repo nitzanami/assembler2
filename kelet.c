@@ -126,7 +126,40 @@ enum errors getArgument(char** arg,keletVars *kv)
 	}
 	*argEnd = '\0';
 	return valid;
-} 
+}
+/*this function gets the string inside the quotation marks for asciz lines, alerts on errors if occoured*/
+enum errors getAscizArgument(char** arg,keletVars *kv)
+{	
+	char c;
+	if(*kv->nextChar++ != '\"')
+	{
+		printError("missing starting \" in asciz string");
+		return invalid;
+	}
+	else
+	{
+		*arg = kv->nextChar;
+		while(*kv->nextChar != '\"' && *kv->nextChar != '\0')
+			kv->nextChar++;
+		if(*kv->nextChar == '\"')
+		{
+			*kv->nextChar++ = '\0';
+			removeWhitespaces();
+			if(c != '\0')
+			{
+				printError("extra characters after closing \"");
+				return invalid;
+			}
+			else
+				return valid;
+		}
+		else
+		{
+			printError("missing ending \" in asciz string");
+			return invalid;
+		}
+	}
+}
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv)
 {

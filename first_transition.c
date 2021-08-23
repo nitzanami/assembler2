@@ -80,7 +80,7 @@ enum errors addLabel(symboltable *symbolTable, keletVars *kv)
 /*this function adds a guidance line to the data image*/
 enum errors addGuidanceToData(dataimage *dataImage, keletVars *kv)
 {
-	int bytesToDivide, numberOfNums, lenOfCharArray, i = 0;
+	int bytesToDivide, numberOfNums, lenOfCharArray;
 	char *s;
 	enum errors e = valid;
 	if (kv->charsChecked >= kv->lineLength)
@@ -92,38 +92,31 @@ enum errors addGuidanceToData(dataimage *dataImage, keletVars *kv)
 	adds the set to the data image if its valid*/
 	if ((bytesToDivide = (strcmp(kv->cmd, ".dw") == 0) ? DW_BYTES : (strcmp(kv->cmd, ".dh") == 0) ? DH_BYTES : (strcmp(kv->cmd, ".db") == 0) ? DB_BYTES : 0))
 	{
-		if ((e = getSet(&numberOfNums, kv)) == valid)
-			if ((e = check_d_set(&s, bytesToDivide, numberOfNums, kv)) == valid)
+		e = getSet(&numberOfNums, kv);
+		if (e == valid)
+		{
+			e = check_d_set(&s, bytesToDivide, numberOfNums, kv);
+			if(e == valid)
 			{
 				lenOfCharArray = bytesToDivide * numberOfNums;
 				addData(dataImage, s, lenOfCharArray);
 				kv->dc += lenOfCharArray;
 				free(s);
 			}
+		}
+
 	}
-	if (strcmp(kv->cmd, ".asciz") == 0)
+	else if (strcmp(kv->cmd, ".asciz") == 0)
 	{
-		s = strtok(NULL, "");
-		if(s[0] != '"')
+		e = getAscizArgument(&s,kv);
+		if(e == valid)
 		{
-			printError("missing opening quotation mark in an asciz guidance");
-			e = invalid;
-		}
-		else if(s[strlen(s) - 1] != '"')
-		{
-			printError("missing ending quotation mark in an asciz guidance");
-			e = invalid;
-		}
-		else
-		{
-			s[strlen(s) - 1] = '\0'; /*remove the closing " */
-			while ((s[i++] = s[i]) != '\0'); /*removing the opening " */
 			lenOfCharArray = strlen(s) + 1;
 			addData(dataImage, s, lenOfCharArray);
 			kv->dc += lenOfCharArray;
 		}
+		
 	}
-	
 	return e;
 }
 
