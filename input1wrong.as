@@ -16,6 +16,8 @@ label3:.dw ,34
 .dh 
 .dh 34,
 .dh 34, notANumber
+.db 256
+.db -257
 label4:.asciz "dfdd
 .asciz sdfs"
 .asciz ssdf

@@ -12,7 +12,7 @@ addi $4, $5, $6
 addi $3, $5, $4, $2
 bne 
 bne $3
-bne $3, $5, $4,
+bne $3, $5, $4
 bne $3, $5, labelNotExist
 bne $3, $5, label, $2
 sw 
