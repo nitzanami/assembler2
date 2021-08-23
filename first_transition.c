@@ -34,7 +34,7 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 						if(err == valid)
 							err = addLabel(symbolTable,label,&kv);
 					}
-					else /*first transition doesn't analyze instructions*/
+					else if(!kv.isEntry) /*first transition doesn't analyze entries*/
 					{
 						err = addLabel(symbolTable,kv.label, &kv);
 					}
