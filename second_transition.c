@@ -11,7 +11,7 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 	kv.row = 0;
 	kv.ic = MEMORY_START_ADDRESS;
 	/*copy file name (for error messages)*/
-	kv.file = malloc(strlen(file+1));
+	kv.file = malloc(strlen(file)+1);
 	strcpy(kv.file,file);
 	/*open input file*/
 	if (getFile(&kv, &assembly) != valid)

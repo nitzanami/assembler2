@@ -18,6 +18,6 @@ jmp label2
 call label
 END: stop
 
-blt $4, 46, END
+blt $4, $30, END
 
 ;end of file

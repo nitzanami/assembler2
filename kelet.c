@@ -19,7 +19,7 @@ enum errors getFile(keletVars *kv, FILE **fp)
 	{
 		if ((*fp = fopen(kv->file, "r")) == NULL)
 		{
-			printf("can't open file: %s\n", kv->file);
+			printf("can't open file:%s\n", kv->file);
 			return invalid;
 		}
 		return valid;
