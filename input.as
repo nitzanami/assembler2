@@ -1,1 +1,4 @@
-add $3,$5,$9
+label: .asciz "1234567890 abcdefgABCDEFG"
+.asciz "123"
+.entry label
+

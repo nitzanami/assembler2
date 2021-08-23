@@ -65,7 +65,6 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 		return invalid;
 	}
 	kv->line[kv->lineLength = i] = '\0';
-	printf("\n%s,end:%d,len:%d",kv->line,c,kv->lineLength);
 	kv->nextChar = kv->line;
 	if (c == EOF) /*end of current file*/
 	{
@@ -126,7 +125,40 @@ enum errors getArgument(char** arg,keletVars *kv)
 	}
 	*argEnd = '\0';
 	return valid;
-} 
+}
+/*this function gets the string inside the quotation marks for asciz lines, alerts on errors if occoured*/
+enum errors getAscizArgument(char** arg,keletVars *kv)
+{	
+	char c;
+	if(*kv->nextChar++ != '\"')
+	{
+		printError("missing starting \" in asciz string");
+		return invalid;
+	}
+	else
+	{
+		*arg = kv->nextChar;
+		while(*kv->nextChar != '\"' && *kv->nextChar != '\0')
+			kv->nextChar++;
+		if(*kv->nextChar == '\"')
+		{
+			*kv->nextChar++ = '\0';
+			removeWhitespaces();
+			if(c != '\0')
+			{
+				printError("extra characters after closing \"");
+				return invalid;
+			}
+			else
+				return valid;
+		}
+		else
+		{
+			printError("missing ending \" in asciz string");
+			return invalid;
+		}
+	}
+}
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv)
 {
@@ -263,6 +295,8 @@ enum errors my_atol(char w[], long *result)
 	char *str;
 	errno = 0;
 	
+	if(w[0] == '\0')
+		return invalid;
 	*result = strtol(w, &str, 10);
 	if (errno > 0 || strlen(str) > 0) /*the number is bigger than long*/
 		return invalid;

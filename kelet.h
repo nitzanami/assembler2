@@ -36,6 +36,9 @@ enum errors getWord(char** word, keletVars *kv);
  returns valid if there were no errors, else invalid*/
 enum errors getArgument(char** arg,keletVars *kv);
 
+/*this function gets the string inside the quotation marks for asciz lines, alerts on errors if occoured*/
+enum errors getAscizArgument(char** arg,keletVars *kv);
+
 /*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv);
 
