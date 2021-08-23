@@ -4,6 +4,7 @@
 /*executes the second_transition and creates output files */
 enum errors second_transition(char file[],symboltable *symbolTable,dataimage *dataImage,uint32 icf, uint32 dcf)
 {
+	char *label;
 	FILE *assembly, *obj, *ent, *ext;
 	enum errors lineErr = valid, errInFile = valid;
 	keletVars kv;
@@ -34,12 +35,23 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 			{
 				if(kv.isEntry)
 				{
-					if(!(getAttributes(symbolTable, kv.label) & EXTERN))/*entry must not be extern too*/
-						addAttributes(symbolTable,ENTRY, kv.label);
-					else
+					if(getArgument(&label,&kv) == valid)
 					{
-						printf("file: %s, line: %d :illegal entry and extern on the same label",kv.file,kv.row);
-						errInFile = invalid;
+						if(doesSymbolExist(symbolTable,label))
+						{
+							if(!(getAttributes(symbolTable,label) & EXTERN))/*entry must not be extern too*/
+								addAttributes(symbolTable,ENTRY,label);
+							else
+							{
+								printf("file: %s, line: %d :illegal entry and extern on the same label",kv.file,kv.row);
+								errInFile = invalid;
+							}
+						}
+						else
+						{
+							printf("file: %s, line: %d :label does not exist",kv.file,kv.row);
+							errInFile = invalid;
+						}
 					}
 				}
 				/* if there is an instruction, we encode it and if it isnt valid we mark it */
@@ -51,8 +63,6 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 		}
 		else if(lineErr == invalid)
 			errInFile = invalid;
-
-		kv.row++;
 	}
 	free(kv.file);
 	writeDataToFile(dataImage,kv.ic,obj);

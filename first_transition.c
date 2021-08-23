@@ -4,6 +4,7 @@
 /*this function gets a file name, opens it and extracts the symbols and data image*/
 enum errors first_transition(char file[], symboltable *symbolTable, dataimage *dataImage,uint32 *icf, uint32 *dcf)
 {
+	char *label;
 	FILE *fp;
 	enum errors lineErr = valid, err = valid, isErrInFile = valid;
 	keletVars kv;
@@ -25,9 +26,12 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 			err = getCommandName(&kv);
 			if(err == valid)
 			{
-				if (kv.isLabel && !kv.isEntry) /*first transition ignores entries*/
+				if (kv.isExtern) /*first transition ignores entries*/
 				{
-					err = addLabel(symbolTable, &kv);
+					err = getArgument(&label,&kv);
+					if(err == valid);
+					
+					err = addLabel(symbolTable,label , &kv);
 				}
 				if (err == valid)
 				{
@@ -53,18 +57,18 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 }
 
 /*this function adds the label to the symbol table if it isnt already defined. if the label is defined it alerts about it properly*/
-enum errors addLabel(symboltable *symbolTable, keletVars *kv)
+enum errors addLabel(symboltable *symbolTable,char *label, keletVars *kv)
 {
 	unsigned char atribute;
 	unsigned long value;
 	/*label isn't yet defined*/
-	if (!doesSymbolExist(symbolTable, kv->label))
+	if (!doesSymbolExist(symbolTable, label))
 	{
 		(kv->isExtern) ? (value = 0, atribute = EXTERN) : (kv->isInstruction) ? (value = kv->ic, atribute = CODE) : (value = kv->dc, atribute = DATA);
-		addSymbol(symbolTable, kv->label, value, atribute);
+		addSymbol(symbolTable,label, value, atribute);
 		return valid;
 	}
-	atribute = getAttributes(symbolTable, kv->label);
+	atribute = getAttributes(symbolTable, label);
 	if((atribute & EXTERN) && kv->isExtern)
 		return valid;
 	else if ((atribute & EXTERN) && !kv->isExtern)
@@ -133,6 +137,8 @@ enum errors getSet(int *numberOfNums, keletVars *kv)
 		{
 			kv->numbers[i++] = num;
 		}
+		else
+			break;
 	}
 	*numberOfNums = i;	
 	return valid;

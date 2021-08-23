@@ -13,4 +13,4 @@ enum errors getSet(int *numberOfNums, keletVars *kv);
 /*this function checks for correct numbers in the set*/
 enum errors check_d_set(char **s, int bytesToDivide, int numberOfNums, keletVars *kv);
 /*this function adds the label to the symbol table if it isnt already defined. if the label is defined it alerts about it properly*/
-enum errors addLabel(symboltable *symbolTable, keletVars *kv);
+enum errors addLabel(symboltable *symbolTable, char* label, keletVars *kv);
