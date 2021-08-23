@@ -1,2 +1,1 @@
-.extern label
-jmp label
+END: stop
