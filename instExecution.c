@@ -103,7 +103,7 @@ enum errors execute_Jj(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 {
 	char *label;
 	/*if the parameter starts with $ its a register, else its a label*/
-	if(kv->line[kv->charsChecked] == '$')
+	if(*kv->nextChar == '$')
 	{
 		if (getReg(kv->numbers + 1, kv) != valid)
 			return invalid;
