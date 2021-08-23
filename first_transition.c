@@ -26,22 +26,25 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 			err = getCommandName(&kv);
 			if(err == valid)
 			{
-				if (kv.isExtern) /*first transition ignores entries*/
+				if (kv.isLabel || kv.isExtern) /*first transition ignores entries*/
 				{
-					err = getArgument(&label,&kv);
-					if(err == valid);
-					
-					err = addLabel(symbolTable,label , &kv);
-				}
-				if (err == valid)
-				{
-					if (!kv.isInstruction) /*first transition doesn't analyze instructions*/
+					if(kv.isExtern)
 					{
-						if(!kv.isEntry && !kv.isExtern) /*entry and extern doesn't add to data table*/
-							err = addGuidanceToData(dataImage, &kv);
+						err = getArgument(&label,&kv);/* if the command is extern, we add the label after the command*/
+						if(err == valid)
+							err = addLabel(symbolTable,label,&kv);
 					}
-					else
-						kv.ic += INSTRUCTION_BYTE_LEN;	
+					else /*first transition doesn't analyze instructions*/
+					{
+						err = addLabel(symbolTable,kv.label, &kv);
+						if(kv.isInstruction)
+							kv.ic += INSTRUCTION_BYTE_LEN;	
+						else
+						{
+							addGuidanceToData(dataImage,&kv);
+						}
+						
+					}
 				}
 			}
 		}

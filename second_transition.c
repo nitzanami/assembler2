@@ -49,7 +49,7 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 						}
 						else
 						{
-							printf("file: %s, line: %d :label does not exist",kv.file,kv.row);
+							printf("file: %s, line: %d :label does not exist\n",kv.file,kv.row);
 							errInFile = invalid;
 						}
 					}
