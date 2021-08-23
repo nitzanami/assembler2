@@ -23,7 +23,7 @@
 #define MAX_IMMED 32767
 #define MIN_IMMED -32768
 typedef unsigned long int uint32;
-enum errors {valid, eof, emptyLine, invalid};
+enum errors {valid, eof, emptyLine, invalid , emptyAndeof};
 
 /* instruction constants and typedefs */
 enum inst_type {Ra, Rc, Ia, Ib, Ils, Jj, Jlc,Js};

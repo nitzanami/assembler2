@@ -16,25 +16,29 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 	if (getFile(&kv, &fp) != valid)
 		return invalid;
 	
-	while (lineErr != eof) /*haven't reached the enf of the file*/
+	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the enf of the file*/
 	{
+		lineErr = getCommandLine(fp, &kv);
 		/*valid line and command*/
-		if (((lineErr = getCommandLine(fp, &kv)) == valid || lineErr == eof) && (lineErr != emptyLine) && ((err = getCommandName(&kv)) == valid))
+		if (lineErr == valid || lineErr == eof) 
 		{	
-			printf("analyzed line, err:%d\n",lineErr);
-			if (kv.isLabel && !kv.isEntry) /*first transition ignores entries*/
+			err = getCommandName(&kv);
+			if(err == valid)
 			{
-				err = addLabel(symbolTable, &kv);
-			}
-			if (err == valid)
-			{
-				if (!kv.isInstruction) /*first transition doesn't analyze instructions*/
+				if (kv.isLabel && !kv.isEntry) /*first transition ignores entries*/
 				{
-					if(!kv.isEntry && !kv.isExtern) /*entry and extern doesn't add to data table*/
-						err = addGuidanceToData(dataImage, &kv);
+					err = addLabel(symbolTable, &kv);
 				}
-				else
-					kv.ic += INSTRUCTION_BYTE_LEN;	
+				if (err == valid)
+				{
+					if (!kv.isInstruction) /*first transition doesn't analyze instructions*/
+					{
+						if(!kv.isEntry && !kv.isExtern) /*entry and extern doesn't add to data table*/
+							err = addGuidanceToData(dataImage, &kv);
+					}
+					else
+						kv.ic += INSTRUCTION_BYTE_LEN;	
+				}
 			}
 		}
 		/*an error occured*/

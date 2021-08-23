@@ -5,7 +5,7 @@
 enum errors second_transition(char file[],symboltable *symbolTable,dataimage *dataImage,uint32 icf, uint32 dcf)
 {
 	FILE *assembly, *obj, *ent, *ext;
-	enum errors err = valid, errInFile = valid;
+	enum errors lineErr = valid, errInFile = valid;
 	keletVars kv;
 	kv.row = 0;
 	kv.ic = MEMORY_START_ADDRESS;
@@ -23,13 +23,14 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 	/* make sure the obj file title is needed*/
 	if((icf != MEMORY_START_ADDRESS) && (dcf != 0))
 		fprintf(obj,"     %lu %lu",icf - MEMORY_START_ADDRESS, dcf);
-	while (err != eof)
+	
+	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the enf of the file*/
 	{
-		/*read line*/
-		err = getCommandLine(assembly, &kv);
-		if (err != invalid && err != emptyLine)
-		{
-			if(getCommandName(&kv) == valid)/*read the command*/
+		lineErr = getCommandLine(assembly, &kv);
+		/*valid line and command*/
+		if (lineErr == valid || lineErr == eof) 
+		{	
+			if(getCommandName(&kv) == valid)
 			{
 				if(kv.isEntry)
 				{
@@ -48,7 +49,7 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 			else
 				errInFile = invalid;
 		}
-		else if(err == invalid)
+		else if(lineErr == invalid)
 			errInFile = invalid;
 
 		kv.row++;

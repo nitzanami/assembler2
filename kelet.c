@@ -43,7 +43,8 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 	while (isspace(c = getc(fp)) && (c != '\n')); /*ignore white spaces in the beginnig of the line*/
 	if (c == ';') /*comment line*/
 		while((c = getc(fp)) != '\n');
-		
+	if(c == '\n')
+		return emptyLine;
 	while (c != EOF && c != '\n') /*end of row or file*/
 	{
 		if (i < MAX_INPUT_LINE)
@@ -67,9 +68,12 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 	printf("\n%s,end:%d,len:%d",kv->line,c,kv->lineLength);
 	kv->nextChar = kv->line;
 	if (c == EOF) /*end of current file*/
-		return eof;
-	if(kv->lineLength == 0)
-		return emptyLine;
+	{
+		if(kv->lineLength == 0)
+			return emptyAndeof;
+		else
+			return eof;
+	}
 	
 	return e;
 }
