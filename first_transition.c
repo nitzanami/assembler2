@@ -19,8 +19,9 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 	while (lineErr != eof) /*haven't reached the enf of the file*/
 	{
 		/*valid line and command*/
-		if (((lineErr = getCommandLine(fp, &kv)) == valid || lineErr == eof) && ((err = getCommandName(&kv)) == valid))
-		{
+		if (((lineErr = getCommandLine(fp, &kv)) == valid || lineErr == eof) && (lineErr != emptyLine) && ((err = getCommandName(&kv)) == valid))
+		{	
+			printf("analyzed line, err:%d\n",lineErr);
 			if (kv.isLabel && !kv.isEntry) /*first transition ignores entries*/
 			{
 				err = addLabel(symbolTable, &kv);

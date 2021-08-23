@@ -64,12 +64,13 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 		return invalid;
 	}
 	kv->line[kv->lineLength = i] = '\0';
-	printf("\n%s,end:%d",kv->line,c);
+	printf("\n%s,end:%d,len:%d",kv->line,c,kv->lineLength);
 	kv->nextChar = kv->line;
+	if (c == EOF) /*end of current file*/
+		return eof;
 	if(kv->lineLength == 0)
 		return emptyLine;
-	if ((c == EOF)&& e == valid) /*end of current file*/
-		return eof;
+	
 	return e;
 }
 /*this function gets the next word (instruction,guidance or label) from the line,alerts on errors if there are any*/

@@ -32,10 +32,12 @@ void runAssembler(char file[])
 	symbolTable = initSymbolTable();
 	dataImage = initDataImage();
 	/* run the first transition*/
+	printf("first transition\n");
 	error = first_transition(file, symbolTable, dataImage, &icf, &dcf);
 	
 	if(error == valid)/*if there was no error in the first transition, run the second transition*/
 	{
+		printf("second transition\n");
 		second_transition(file, symbolTable, dataImage,icf,dcf);
 	}
 	
