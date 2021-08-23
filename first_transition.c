@@ -37,15 +37,12 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 					else /*first transition doesn't analyze instructions*/
 					{
 						err = addLabel(symbolTable,kv.label, &kv);
-						if(kv.isInstruction)
-							kv.ic += INSTRUCTION_BYTE_LEN;	
-						else
-						{
-							addGuidanceToData(dataImage,&kv);
-						}
-						
 					}
 				}
+				if(!kv.isInstruction)
+					addGuidanceToData(dataImage,&kv);
+				else
+					kv.ic += INSTRUCTION_BYTE_LEN;	
 			}
 		}
 		/*an error occured*/

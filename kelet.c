@@ -80,17 +80,22 @@ enum errors getCommandLine(FILE *fp, keletVars *kv)
 enum errors getWord(char** word, keletVars *kv)
 {
 	char c, *wordEnd;
-	*word = kv->nextChar;
-	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n')
+	*word = kv->nextChar;/* store the start of the word */
+	/* find the end of the word*/
+	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n' && c != '\0')
 		kv->nextChar++;
+	/* mark the end of the word */
 	wordEnd = kv->nextChar;
 	
+	/* remove extra white spaces after word if there are any*/
 	removeWhitespaces();
+	/* a comma after the word is illegal */
 	if(c == ',')
 	{
 		printError("Extra comma before arguments");
 		return invalid;
 	}
+	/* null-terminate the word */
 	*(wordEnd) = '\0';
 	
 	removeWhitespaces();
@@ -101,8 +106,8 @@ enum errors getWord(char** word, keletVars *kv)
 enum errors getArgument(char** arg,keletVars *kv)
 {
 	char c,*argEnd;
-	*arg = kv->nextChar;
-	while(!isspace(c = *kv->nextChar) && c != ',' && c!= '\0')
+	*arg = kv->nextChar;/* store the start of the word */
+	while(!isspace(c = *kv->nextChar) && c != ',' && c!= '\0')/* find the end of the word*/
 		kv->nextChar++;
 	
 	argEnd = kv->nextChar;
