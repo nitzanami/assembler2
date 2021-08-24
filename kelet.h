@@ -45,6 +45,9 @@ enum errors getCommandName(keletVars *kv);
 /*this function checks if the word is a label*/
 int isLabel(char *word, keletVars *kv);
 
+/*this function checks if the label us legal*/
+int isLabelLegal(char *label, keletVars *kv);
+
 /*this function checks if the command is an instruction, if it is one then it saves the type and the pointer to it and returns 1,
  else retruns 0*/
 int isInstruction(char *word,keletVars *kv);

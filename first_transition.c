@@ -18,7 +18,8 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 		return invalid;
 	
 	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the enf of the file*/
-	{
+	{	
+		label = NULL;
 		lineErr = getCommandLine(fp, &kv);
 		/*valid line and command*/
 		if (lineErr == valid || lineErr == eof) 
@@ -26,17 +27,21 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 			err = getCommandName(&kv);
 			if(err == valid)
 			{
-				if (kv.isLabel || kv.isExtern) /*first transition ignores entries*/
+				if(kv.isExtern)
 				{
-					if(kv.isExtern)
+					err = getArgument(&label,&kv);/* if the command is extern, we add the label after the command*/
+					if(err == valid)
 					{
-						err = getArgument(&label,&kv);/* if the command is extern, we add the label after the command*/
-						if(err == valid)
+						if(isLabelLegal(label,&kv))
 							err = addLabel(symbolTable,label,&kv);
 					}
-					else if(!kv.isEntry) /*first transition doesn't analyze entries*/
+				}
+				else if (kv.isLabel) /* we need to add a label*/
+				{
+					if(!kv.isEntry) /*first transition doesn't analyze entries*/
 					{
-						err = addLabel(symbolTable,kv.label, &kv);
+						if(isLabelLegal(kv.label,&kv))
+							err = addLabel(symbolTable,kv.label, &kv);
 					}
 				}
 				if(!kv.isInstruction)
@@ -59,26 +64,44 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 /*this function adds the label to the symbol table if it isnt already defined. if the label is defined it alerts about it properly*/
 enum errors addLabel(symboltable *symbolTable,char *label, keletVars *kv)
 {
-	unsigned char atribute;
+	unsigned char attribute;
 	unsigned long value;
 	/*label isn't yet defined*/
 	if (!doesSymbolExist(symbolTable, label))
 	{
-		(kv->isExtern) ? (value = 0, atribute = EXTERN) : (kv->isInstruction) ? (value = kv->ic, atribute = CODE) : (value = kv->dc, atribute = DATA);
-		addSymbol(symbolTable,label, value, atribute);
+		if(kv->isExtern)
+		{
+			value = 0;
+			attribute = EXTERN;
+		}
+		else if(kv->isInstruction)
+		{
+			value = kv->ic;
+			attribute = CODE;
+		} 
+		else
+		{
+			value = kv->dc;
+			attribute = DATA;
+		}
+		addSymbol(symbolTable,label, value, attribute);
 		return valid;
 	}
-	atribute = getAttributes(symbolTable, label);
-	if((atribute & EXTERN) && kv->isExtern)
-		return valid;
-	else if ((atribute & EXTERN) && !kv->isExtern)
-		printError("label already defined as extern, can't redefine the label");
-	else if (atribute & DATA)
-		printError("label already defined as data, can't redefine the label");
-	else if (atribute & CODE)
-		printError("label already defined as code, can't redefine the label");
-	
-	return invalid; 
+	else
+	{
+		attribute = getAttributes(symbolTable, label);
+		
+		if((attribute & EXTERN) && kv->isExtern)
+			return valid;
+		else if ((attribute & EXTERN) && !kv->isExtern)
+			printError("label already defined as extern, can't redefine the label");
+		else if (attribute & DATA)
+			printError("label already defined as data, can't redefine the label");
+		else if (attribute & CODE)
+			printError("label already defined as code, can't redefine the label");
+		return invalid;
+	}
+
 }
 
 /*this function adds a guidance line to the data image*/
@@ -142,6 +165,15 @@ enum errors getSet(int *numberOfNums, keletVars *kv)
 	char *n;
 	while(getArgument(&n,kv) == valid)
 	{
+		if(n[0] == '\0')
+		{
+			if(i == 0)
+			{
+				printError("missing arguments for guidance");
+				return invalid;
+			}
+			break;
+		}		
 		if(my_atol(n,&num) == valid)
 		{
 			kv->numbers[i++] = num;
@@ -149,6 +181,7 @@ enum errors getSet(int *numberOfNums, keletVars *kv)
 		else
 			break;
 	}
+	
 	*numberOfNums = i;	
 	return valid;
 }

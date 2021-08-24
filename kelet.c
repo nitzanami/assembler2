@@ -82,11 +82,21 @@ enum errors getWord(char** word, keletVars *kv)
 	char c, *wordEnd;
 	*word = kv->nextChar;/* store the start of the word */
 	/* find the end of the word*/
-	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n' && c != '\0')
+	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n' && c != ':' && c != '\0')
 		kv->nextChar++;
+	if(c == ':')
+	{
+		if(kv->isLabel)
+		{
+			printError("label instead of instruction");
+			return invalid;
+		}	
+		kv->isLabel = 1;
+	}
 	/* mark the end of the word */
 	wordEnd = kv->nextChar;
-	
+	if(kv->nextChar != '\0')
+		kv->nextChar++;
 	/* remove extra white spaces after word if there are any*/
 	removeWhitespaces();
 	/* a comma after the word is illegal */
@@ -109,7 +119,7 @@ enum errors getArgument(char** arg,keletVars *kv)
 	*arg = kv->nextChar;/* store the start of the word */
 	while(!isspace(c = *kv->nextChar) && c != ',' && c!= '\0')/* find the end of the word*/
 		kv->nextChar++;
-	
+		
 	argEnd = kv->nextChar;
 	removeWhitespaces();
 	
@@ -170,15 +180,19 @@ enum errors getCommandName(keletVars *kv)
 	enum errors e;
 	char* word;
 	e = getWord(&word,kv);
-	if(e == valid && isLabel(word,kv))
+	if(e == valid && kv->isLabel)
 	{
 		kv->label = word;
-		kv->isLabel = 1;
 		e = getWord(&word,kv);
 	}
 	if(e == valid)
 	{
 		kv->cmd = word;
+		if(word[0] == '\0')
+		{
+			printError("missing instruction or guidance");
+			return invalid;
+		}
 		if(word[0] == '.')
 			if(isGuidance(word,kv))
 				kv->isInstruction = 0;
@@ -199,13 +213,15 @@ enum errors getCommandName(keletVars *kv)
 }
 /*this function checks that the label starts with a letter and consists of letters and numbers only*/
 enum errors checkAlphaNum(char *label, keletVars *kv)
-{	
+{		
 	if (!isalpha(label[0])) /*label sdould start with a letter*/
 	{
 		printError("label doesn't start with a letter");
 		return invalid;
 	}
-	while (isalnum(*(label++)));/*label consists of letters and numbers only*/
+	while (isalnum(*label))/*label consists of letters and numbers only*/
+		label++;
+	
 	if (*label != '\0')
 	{
 		printError("label consists of letters and numbers only");
@@ -246,7 +262,12 @@ int isLabel(char *word, keletVars *kv)
 }
 /*this function checks if the label us legal*/
 int isLabelLegal(char *label, keletVars *kv)
-{
+{	
+	if(label[0] == '\0')
+	{
+		printError("missing label");
+		return 0;
+	}
 	if(strlen(label) > MAX_SYMBOL_LENGTH) /*label too long*/
 	{
 		printError("label too long");

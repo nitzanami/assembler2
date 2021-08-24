@@ -65,8 +65,8 @@ LABE5:	.asciz	"now for some difficult string:"
 		.asciz	"!@#$%^&*()_+}{L'?><MKL"    
 		.asciz	" "
 		.asciz	"	"
-		.asciz	"""
-		.asciz	" " "
+		.asciz	" "
+		.asciz	"   "
 
 DoLabel2:	jmp		DoLabel
 			bne		$15, $6, DoLabel2

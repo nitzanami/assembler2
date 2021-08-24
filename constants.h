@@ -4,7 +4,7 @@
 /*general constants*/
 #define MALLOC_FAILURE 1
 #define checkMalloc(pointer) if((pointer) == NULL) exit(MALLOC_FAILURE)
-#define printError(message) printf("file %s: line %d: %s\n",kv->file, kv->row,message)
+#define printError(message) printf("file: %s: line %d: %s\n",kv->file, kv->row,message)
 
 #define INSTRUCTION_BYTE_LEN 4
 #define VALID 0
