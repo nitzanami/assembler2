@@ -45,9 +45,10 @@ enum errors getFile(keletVars *kv, FILE **fp)
 void printInstructionToObj(FILE *fp, uint32 data, uint32 ic)
 {
 	int i;
-	fprintf(fp,"\n%04lu",ic);/* at the start of the line, print the address*/
+	fprintf(fp,"%04lu",ic);/* at the start of the line, print the address*/
 	for(i = 0; i < OBJ_LINE_LENGTH; i++)
 		fprintf(fp," %02X", (unsigned char)(data >> (i*BIT_IN_BYTE)) & BYTE_MASK);/*print every byte in a 2 digit hexa number*/
+	putc('\n',fp);
 }
 /* prints a line of the extern file */
 void printExternToFile(FILE *fp, uint32 address, char *symbol)

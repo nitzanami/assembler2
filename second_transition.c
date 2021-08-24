@@ -60,7 +60,7 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 	
 	/* make sure the obj file title is needed*/
 	if((icf != MEMORY_START_ADDRESS) && (dcf != 0))
-		fprintf(obj,"     %lu %lu",icf - MEMORY_START_ADDRESS, dcf);
+		fprintf(obj,"     %lu %lu\n",icf - MEMORY_START_ADDRESS, dcf);
 	
 	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the end of the file*/
 	{

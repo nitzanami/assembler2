@@ -78,9 +78,12 @@ void writeDataToFile(dataimage *dp, uint32 startAddress, FILE *fp)
 		{
 			/* every OBJ_LINE_LENGTH lines, go to a new line and print the address as a 4 digit decimal number with padding of 0's*/
 			if((count % OBJ_LINE_LENGTH) == 0) 
-				fprintf(fp,"\n%04lu", count + startAddress);
+				fprintf(fp,"%04lu", count + startAddress);
 			/* print the current byte in hexadecimal */
 			fprintf(fp," %02X", node->data[i] & BYTE_MASK);
+			
+			if((count % OBJ_LINE_LENGTH) == OBJ_LINE_LENGTH -1)
+				putc('\n',fp);
 		}
 		node = node->next;
 	}
