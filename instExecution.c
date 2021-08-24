@@ -12,6 +12,7 @@ enum errors execute_Ra(keletVars *kv)
 		if (getReg(kv->numbers + i, kv) != valid)
 			return invalid;
 	}
+	checkExtraArgs()
 	return valid;
 }
 /* gets the parameters for R_copy: <register>,<register>*/
@@ -26,8 +27,8 @@ enum errors execute_Rc(keletVars *kv)
 	
 	if (getReg(kv->numbers + (i++), kv) != valid)
 		return invalid;
-		
 	
+	checkExtraArgs()
 	return valid;
 }
 /* gets the parameters for I_arithmatic or I_load_store : <register>,<immed>,<register> */
@@ -42,14 +43,12 @@ enum errors execute_Ia_ls(keletVars *kv)
 	if(getImmed(&immed, kv) != valid)
 		return invalid;
 	else
-	{
 		kv->numbers[i++] = immed;
-	}
 		
 	if (getReg((kv->numbers)+(i++), kv) != valid)
 		return invalid;
 		
-	
+	checkExtraArgs()
 	return valid;
 }
 /* gets the parameters for I_b : <register>,<register>,<label>
@@ -85,7 +84,7 @@ enum errors execute_Ib(symboltable *symbolTable, keletVars *kv)
 				else
 				{
 					kv->numbers[1] = distance;
-					
+					checkExtraArgs()
 					return valid;
 				}
 			}
@@ -108,6 +107,8 @@ enum errors execute_Jj(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 		if (getReg(kv->numbers + 1, kv) != valid)
 			return invalid;
 		kv->numbers[0] = 1;/*reg = 1*/
+		checkExtraArgs()
+		return valid;
 	}
 	else if (getArgument(&label,kv) == valid && isLabelLegal(label, kv))
 	{
@@ -116,17 +117,15 @@ enum errors execute_Jj(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 		{
 			kv->numbers[1] = getValue(symbolTable,label);
 			if(getAttributes(symbolTable,label) & EXTERN)/*if the label is external print it to the extern file*/
-				 printExternToFile(extfp,kv->ic,label);
+				printExternToFile(extfp,kv->ic,label);
+			checkExtraArgs()
+			return valid;	
 		}
 		else
-		{
 			printError("this label does not exist");
-			return invalid;
-		}
 	}
-		
+	return invalid;	
 	
-	return valid;
 }
 /* gets the parameters for J_la or J_call : <label> */
 enum errors execute_Jlc(symboltable *symbolTable, keletVars *kv, FILE *extfp)
@@ -139,17 +138,21 @@ enum errors execute_Jlc(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 			kv->numbers[0] = 0; /*reg = 0*/
 			kv->numbers[1] = getValue(symbolTable,label);
 			if(getAttributes(symbolTable,label) & EXTERN)/*if the label is external print it to the extern file*/
-				 printExternToFile(extfp,kv->ic,label);
+				printExternToFile(extfp,kv->ic,label);
+			checkExtraArgs()
+			return valid;
 		}
+		else
+			printError("this label does not exist");
 	}
+	return invalid;
 	
-	return valid;
 }
 /* make sure there are no arguments for stop*/
 enum errors execute_Js(keletVars *kv)
 {
 	kv->numbers[0] = kv->numbers[1] = kv->numbers[2] = 0;
-	
+	checkExtraArgs()
 	return valid;
 }
 /* gets the next register parameter, returns invalid if there is an error */
