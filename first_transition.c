@@ -141,7 +141,7 @@ enum errors addGuidanceToData(dataimage *dataImage, keletVars *kv)
 		}
 		else if (strcmp(kv->cmd, ".asciz") == 0)/*if the guidance is asciz */
 		{
-			e = getAscizArgument(&s,kv);
+			e = getAscizArgument(&s,kv); /*get the string for the asciz guidance*/
 			if(e == valid)
 			{
 				lenOfCharArray = strlen(s) + 1;
@@ -159,26 +159,26 @@ enum errors getSet(int *numberOfNums, keletVars *kv)
 {
 	long num, i = 0;
 	char *n;
-	while(getArgument(&n,kv) == valid)
+	while(getArgument(&n,kv) == valid)/* read arguments until we find an error*/
 	{
-		if(n[0] == '\0')
-		{
-			if(i == 0)
+		if(n[0] == '\0')/* if we find an empty argument, we reached the end of the line*/
+		{				
+			if(i == 0)/*if there are 0 arguments print error*/
 			{
 				printError("missing arguments for guidance");
 				return invalid;
 			}
-			break;
+			break;/* stop reading arguments because we reached an empty argument*/
 		}		
-		if(my_atol(n,&num,kv) == valid)
+		if(my_atol(n,&num,kv) == valid)/*if the argument is a valid number, store it*/
 		{
 			kv->numbers[i++] = num;
 		}
 		else
-			break;
+			return invalid;/*there was an invalid argument*/
 	}
 	
-	*numberOfNums = i;	
+	*numberOfNums = i;
 	return valid;
 }
 
@@ -188,22 +188,24 @@ enum errors check_d_set(char **s, int bytesToDivide, int numberOfNums, keletVars
 	int i, j;
 	long range;
 	
+	/*find the range of numbers that fit in the given amount of bytesToDivide*/
 	range = (signed long)1 << (bytesToDivide * BIT_IN_BYTE - 1);
 	
-	if ((*s = (char *) malloc(numberOfNums * bytesToDivide)) == NULL)
-	{
-		printError("an error occured while allocating memory");
-		return invalid;
-	}
+	/* allocate char array to store the data in*/
+	*s = malloc(numberOfNums * bytesToDivide);
+	checkMalloc(*s);
 	
+	/* for every number in the num array*/
 	for (i = 0; i < numberOfNums; i++)
 	{
-		if ((range - 1) < kv->numbers[i] ||  -range > kv->numbers[i]) /*number outside of range*/
+		/* make sure the number is in the valid range*/
+		if ((range - 1) < kv->numbers[i] ||  -range > kv->numbers[i])
 		{
 			printError("number too big to fit in the number of bytes given");
 			return invalid;
 		}
-		for (j = 0; j < bytesToDivide; j++) /*dividing the number into char sized blocks and saving them*/
+		/*dividing the number into char sized blocks and saving them in order*/
+		for (j = 0; j < bytesToDivide; j++) 
 		{
 			(*s)[i * bytesToDivide + j] = (char)((kv->numbers[i] >> (j * BIT_IN_BYTE)) & BYTE_MASK);
 		}
