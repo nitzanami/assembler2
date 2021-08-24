@@ -21,7 +21,7 @@ uint32 inst_I(int rs, long immed, int rt, int opcode, int funct)
 	uint32 code = 0;
 	
 	/* add the parameters to the result at the correct location */
-	code |= immed & 0XFFFF;
+	code |= immed & IMMED_MASK;
 	code |= rt << RT_START;
 	code |= rs << RS_START;
 	code |= opcode << OPCODE_START;
@@ -33,7 +33,7 @@ uint32 inst_J(int reg, long address, int x,int opcode, int y)
 {
 	uint32 code = 0;
 	
-	code |= address & 0XFFFFFF;
+	code |= address & ADDRESS_MASK;
 	if (reg)/* if the instruction is a register, turn the reg bit on*/
 		code |= 1 << REG_START;
 	/* add opcode at the correct location */

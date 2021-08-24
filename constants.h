@@ -13,6 +13,7 @@
 #define MACHINE_CODE_SIZE (1<<25)
 #define MEMORY_START_ADDRESS 100
 #define BYTE_MASK 0xff
+
 #define MAX_INPUT_LINE 80
 #define BIT_IN_BYTE 8
 #define DW_BYTES 4
@@ -27,6 +28,9 @@ enum errors {valid, eof, emptyLine, invalid , emptyAndeof};
 
 /* instruction constants and typedefs */
 enum inst_type {Ra, Rc, Ia, Ib, Ils, Jj, Jlc,Js};
+
+#define IMMED_MASK 0xffff
+#define ADDRESS_MASK 0xffffff
 
 #define FUNCT_START 6;
 #define RD_START 11;
