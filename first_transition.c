@@ -1,11 +1,38 @@
 #include "first_transition.h"
 #include <stdlib.h>
 
+static enum errors executeLine(symboltable *symbolTable,dataimage *dataImage,keletVars* kv)
+{
+	char *label;
+	enum errors errorFound = valid;;
+	errorFound = getCommandName(kv);
+	if(errorFound == valid)/* get the label if there is any, and then the instruction or guidance, setting flags accordingly*/
+	{
+		if(kv->isExtern)/*on extern line, we add the argument of the command to the symbol table if it is a legal label*/
+		{
+			errorFound = getArgument(&label,kv);
+			if(errorFound == valid)/* get the label after the command*/
+			{
+				if(isLabelLegal(label,kv))/*print message if the label is illegal , if label is legal add it*/
+					errorFound = addLabel(symbolTable,label,kv);
+			}
+		}
+		else if(kv->isLabel && !kv->isEntry) /* if we found a label on a non entry line, add it*/
+		{
+			if(isLabelLegal(kv->label,kv))/*print message if the label is illegal , if label is legal add it*/
+				errorFound = addLabel(symbolTable,kv->label, kv);
+		}
+		if(!kv->isInstruction)/* if the line declates data, add it to data image*/
+			addGuidanceToData(dataImage,kv);
+		else /*if the line is an instruction, increment ic*/
+			kv->ic += INSTRUCTION_BYTE_LEN;	
+	}
+	return errorFound;
+}
 /*this function gets a file name, opens it and extracts the symbols and data image*/
 enum errors first_transition(char file[], symboltable *symbolTable, dataimage *dataImage,uint32 *icf, uint32 *dcf)
 {
 	/*declare variables*/
-	char *label;
 	FILE *fp;
 	enum errors lineErr = valid, err = valid, isErrInFile = valid;
 	keletVars kv;
@@ -22,28 +49,7 @@ enum errors first_transition(char file[], symboltable *symbolTable, dataimage *d
 		lineErr = getCommandLine(fp, &kv);/*read next line*/
 		if (lineErr == valid || lineErr == eof)/*valid line*/
 		{	
-			err = getCommandName(&kv);/* get the label if there is any, and then the instruction or guidance, setting flags accordingly*/
-			if(err == valid)
-			{
-				if(kv.isExtern)/*on extern line, we add the argument of the command to the symbol table if it is a legal label*/
-				{
-					err = getArgument(&label,&kv);/* get the label after the command*/
-					if(err == valid)
-					{
-						if(isLabelLegal(label,&kv))/*print message if the label is illegal , if label is legal add it*/
-							err = addLabel(symbolTable,label,&kv);
-					}
-				}
-				else if(kv.isLabel && !kv.isEntry) /* if we found a label on a non entry line, add it*/
-				{
-					if(isLabelLegal(kv.label,&kv))/*print message if the label is illegal , if label is legal add it*/
-						err = addLabel(symbolTable,kv.label, &kv);
-				}
-				if(!kv.isInstruction)/* if the line declates data, add it to data image*/
-					addGuidanceToData(dataImage,&kv);
-				else /*if the line is an instruction, increment ic*/
-					kv.ic += INSTRUCTION_BYTE_LEN;	
-			}
+			err = executeLine(symbolTable, dataImage,&kv);
 		}
 		/*an error occured in the current line*/
 		if ((err == invalid) || (lineErr == invalid))
