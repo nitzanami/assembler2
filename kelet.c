@@ -84,18 +84,18 @@ enum errors getWord(char** word, keletVars *kv)
 	/* find the end of the word*/
 	while(!isspace(c = *(kv->nextChar)) && c!= ',' && c != '\n' && c != ':' && c != '\0')
 		kv->nextChar++;
-	if(c == ':')
+	/* mark the end of the word */
+	wordEnd = kv->nextChar;
+	if(c == ':')/*if word ends with : it is a label*/
 	{
-		if(kv->isLabel)
+		if(kv->isLabel)/*if we found a label already*/
 		{
-			printError("label instead of instruction");
+			printError("label instead of instruction");/*after the first label there is another label*/
 			return invalid;
 		}	
 		kv->isLabel = 1;
-	}
-	/* mark the end of the word */
-	wordEnd = kv->nextChar;
-	if(kv->nextChar != '\0')
+	}	
+	if(*kv->nextChar != '\0')
 		kv->nextChar++;
 	/* remove extra white spaces after word if there are any*/
 	removeWhitespaces();
@@ -316,7 +316,7 @@ int isGuidance(char* word,keletVars *kv)
 }
 
 /*converts a string to a long number. returns valid if the string is a long number and invalid otherwise*/
-enum errors my_atol(char w[], long *result)
+enum errors my_atol(char w[], long *result,keletVars *kv)
 {
 	char *str;
 	errno = 0;
@@ -324,8 +324,16 @@ enum errors my_atol(char w[], long *result)
 	if(w[0] == '\0')
 		return invalid;
 	*result = strtol(w, &str, 10);
-	if (errno > 0 || strlen(str) > 0) /*the number is bigger than long*/
+	if(strlen(str) > 0)
+	{
+		printError("parameter is not an integer");
 		return invalid;
+	}
+	if (errno > 0) /*the number is bigger than long*/
+	{
+		printError("number is too big to fit in long");
+		return invalid;
+	}
 	return valid;
 }
 

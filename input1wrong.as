@@ -4,7 +4,7 @@ labelDefTwice: jmp label
 %badLabel: 
 addBadLabel:
 ascizBadLabel:
-dataLabel: .asciz "123456789"
+dataLabel:.asciz "123456789"
 label: addddd
 label2: .dwww
 label5: extraLabel:
@@ -22,6 +22,7 @@ label3:.dw ,34
 label4:.asciz "dfdd
 .asciz sdfs"
 .asciz ssdf
+.asciz 
 
 .extern dataLabel
 .extern &notAlabel

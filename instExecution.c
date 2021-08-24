@@ -166,7 +166,7 @@ enum errors getReg(long *reg, keletVars *kv)
 			return invalid;
 		}
 		/*convert the register string to an integer and make sure the register value is valid*/
-		if (my_atol(n+1, reg) == valid && MIN_REG <= *reg && *reg <= MAX_REG)
+		if (my_atol(n+1, reg,kv) == valid && MIN_REG <= *reg && *reg <= MAX_REG)
 			return valid;
 		else
 		{
@@ -191,7 +191,7 @@ enum errors getImmed(long *immed,keletVars *kv)
 		printError("missing arguments");
 		return invalid;
 	}
-	if (my_atol(n,immed) == valid)/*converts the immed from char[] to long*/
+	if (my_atol(n,immed,kv) == valid)/*converts the immed from char[] to long*/
 	{
 		if (*immed <= MAX_IMMED && *immed >= MIN_IMMED)/*make sure the immed value is valid*/
 			return valid;

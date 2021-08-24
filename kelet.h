@@ -57,5 +57,5 @@ int isInstruction(char *word,keletVars *kv);
 int isGuidance(char *word,keletVars *kv);
 
 /*converts a string to a long number. returns valid if the string is a long number and invalid otherwise*/
-enum errors my_atol(char w[], long *result);
+enum errors my_atol(char w[], long *result,keletVars *kv);
 #endif
