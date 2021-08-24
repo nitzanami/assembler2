@@ -64,7 +64,7 @@ enum errors execute_Ib(symboltable *symbolTable, keletVars *kv)
 	if (getReg(kv->numbers + 2, kv) != valid)
 			return invalid;
 			
-	if (getArgument(&label,kv) == valid)
+	if (getArgument(&label,kv) == valid && isLabelLegal(label, kv))
 	{
 		if(doesSymbolExist(symbolTable,label))
 		{
@@ -109,7 +109,7 @@ enum errors execute_Jj(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 			return invalid;
 		kv->numbers[0] = 1;/*reg = 1*/
 	}
-	else if (getArgument(&label,kv) == valid)
+	else if (getArgument(&label,kv) == valid && isLabelLegal(label, kv))
 	{
 		kv->numbers[0] = 0;/*reg = 0*/
 		if(doesSymbolExist(symbolTable,label))
@@ -132,7 +132,7 @@ enum errors execute_Jj(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 enum errors execute_Jlc(symboltable *symbolTable, keletVars *kv, FILE *extfp)
 {
 	char *label;
-	if (getArgument(&label,kv) == valid)
+	if (getArgument(&label,kv) == valid && isLabelLegal(label, kv))
 	{
 		if(doesSymbolExist(symbolTable,label))
 		{
