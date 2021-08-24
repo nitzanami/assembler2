@@ -8,11 +8,11 @@
 #include "symboltable.h"
 #include "files.h"
 
-#define checkExtraArgs if(kv->charsChecked <= kv->lineLength) \
-							{\
-							printError("too many arguments for this instruction");\
-							return invalid;\
-							}
+#define checkExtraArgs() if (*(kv->nextChar) != '\0')\
+				{\
+					printError("too many arguments");\
+					return invalid;\
+				}
 
 
 /* gets the parameters for R_arithmatic: <register>,<register>,<register>*/

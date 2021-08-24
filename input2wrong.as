@@ -1,3 +1,4 @@
+label: .asciz "for checking"
 add 
 add $3
 add $3, 5
@@ -9,7 +10,7 @@ move $3, $5, $4, $2
 addi 
 addi $3
 addi $4, $5, $6
-addi $3, $5, $4, $2
+addi $3, -5, $4, $2
 bne 
 bne $3
 bne $3, $5, $4
@@ -18,7 +19,7 @@ bne $3, $5, label, $2
 sw 
 sw $3
 sw $3, $5, $4
-sw $3, $5, $4, $2
+sw $3, -5, $4, $2
 jmp 
 jmp 4g
 jmp labelNotExist
