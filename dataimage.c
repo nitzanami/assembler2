@@ -88,6 +88,6 @@ void writeDataToFile(dataimage *dp, uint32 startAddress, FILE *fp)
 		node = node->next;
 	}
 	/* make sure the file ends with a \n character*/
-	if((count % OBJ_LINE_LENGTH) != OBJ_LINE_LENGTH -1)
+	if((count % OBJ_LINE_LENGTH) != 0)
 		putc('\n',fp);
 }
