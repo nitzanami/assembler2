@@ -6,30 +6,6 @@ extern instruction instructionsArr[];
 
 extern int errno;
 
-/*this function makes sure the file name is valid and if it is, opens the file to the pointer it gets*/
-enum errors getFile(keletVars *kv, FILE **fp)
-{
-	int i = 0;
-	char *suffix;
-	
-	
-	while (kv->file[i++] != '.');
-	suffix = kv->file + i - 1;
-	if (strcmp(suffix, ASSEMBLY_EXTENSION) == 0) /*a valid file for the assembler*/
-	{
-		if ((*fp = fopen(kv->file, "r")) == NULL)
-		{
-			printf("can't open file:%s\n", kv->file);
-			return invalid;
-		}
-		return valid;
-	}
-		
-	printf("file %s: illegal file name for assembler\n", kv->file);
-	return invalid;
-}
-
-
 /*this function gets the command line and checks for correct length. reports about problems if there are any*/
 enum errors getCommandLine(FILE *fp, keletVars *kv)
 {
@@ -119,10 +95,10 @@ enum errors getArgument(char** arg,keletVars *kv)
 	*arg = kv->nextChar;/* store the start of the word */
 	while(!isspace(c = *kv->nextChar) && c != ',' && c!= '\0')/* find the end of the word*/
 		kv->nextChar++;
-		
+	/* store the end of the argument*/
 	argEnd = kv->nextChar;
 	removeWhitespaces();
-	
+	 /*if there is a comma after an argument, make sure there is another argument after it*/
 	if((c = *kv->nextChar) == ',')
 	{
 		kv->nextChar++;
@@ -132,12 +108,13 @@ enum errors getArgument(char** arg,keletVars *kv)
 			printError("extra comma");
 			return invalid;
 		}
-	}
+	}/*if there is no comma after an argument, and we have not reached the end of the line, there is a missing comma*/
 	else if(c != '\0')
 	{
 		printError("missing comma");
 		return invalid;
 	}
+	/*null-terminate the argument*/
 	*argEnd = '\0';
 	return valid;
 }
@@ -145,7 +122,7 @@ enum errors getArgument(char** arg,keletVars *kv)
 enum errors getAscizArgument(char** arg,keletVars *kv)
 {	
 	char c;
-	if(*kv->nextChar++ != '\"')
+	if(*kv->nextChar++ != '\"')/*find starting " of string*/
 	{
 		printError("missing starting \" in asciz string");
 		return invalid;
@@ -153,9 +130,9 @@ enum errors getAscizArgument(char** arg,keletVars *kv)
 	else
 	{
 		*arg = kv->nextChar;
-		while(*kv->nextChar != '\"' && *kv->nextChar != '\0')
+		while(*kv->nextChar != '\"' && *kv->nextChar != '\0')/* looks for ending " or end of line*/
 			kv->nextChar++;
-		if(*kv->nextChar == '\"')
+		if(*kv->nextChar == '\"')/* if the string is terminated correctly, make sure there are no extra characters after it*/
 		{
 			*kv->nextChar++ = '\0';
 			removeWhitespaces();
@@ -167,32 +144,34 @@ enum errors getAscizArgument(char** arg,keletVars *kv)
 			else
 				return valid;
 		}
-		else
+		else/* string is not teminated correctly - missing ending "*/
 		{
 			printError("missing ending \" in asciz string");
 			return invalid;
 		}
 	}
 }
-/*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
+/*this function gets the optinonal label and the command from the line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv)
 {
 	enum errors e;
 	char* word;
 	e = getWord(&word,kv);
-	if(e == valid && kv->isLabel)
+	if(e == valid && kv->isLabel)/*if the first word is a label*/
 	{
-		kv->label = word;
+		kv->label = word;/* store the label and read another word*/
 		e = getWord(&word,kv);
 	}
 	if(e == valid)
-	{
+	{	
+		/* store the command, if it is empty report error*/
 		kv->cmd = word;
 		if(word[0] == '\0')
 		{
 			printError("missing instruction or guidance");
 			return invalid;
 		}
+		/* if command starts with "." check for guidance*/
 		if(word[0] == '.')
 			if(isGuidance(word,kv))
 				kv->isInstruction = 0;
@@ -201,9 +180,9 @@ enum errors getCommandName(keletVars *kv)
 				printError("illegal guidance");
 				return invalid;
 			}
-		else if(isInstruction(word,kv))
+		else if(isInstruction(word,kv))/*if the command is a valid instuction raise a flag*/
 			kv->isInstruction = 1;
-		else 
+		else /*the command is not a valid instruction or guidance*/
 		{
 			printError("illegal instruction");
 			return invalid;
@@ -253,16 +232,17 @@ enum errors checkKeyWord(char* label,keletVars *kv)
 /*this function checks if the word is a label*/
 int isLabel(char *word, keletVars *kv)
 {
-	if(word[strlen(word)-1] == ':')
+	if(word[strlen(word)-1] == ':') /*labels end with :*/
 	{
 		word[strlen(word)-1] = '\0';
 		return 1;
 	}
 	return 0;
 }
-/*this function checks if the label us legal*/
+/*this function checks if the label is legal*/
 int isLabelLegal(char *label, keletVars *kv)
 {	
+	/* if the label is empty, there is a missing label */
 	if(label[0] == '\0')
 	{
 		printError("missing label");
@@ -273,6 +253,7 @@ int isLabelLegal(char *label, keletVars *kv)
 		printError("label too long");
 		return 0;
 	}
+	/* check if label starts with letter, is alphanum and not a keyword*/
 	if(checkAlphaNum(label,kv) == invalid || checkKeyWord(label,kv) == invalid)
 		return 0;
 	return 1;
@@ -296,12 +277,19 @@ int isInstruction(char* word,keletVars *kv)
 }
 
 /*this function checks if the word is a guidance, if it is extern or entry it activates the proper flag
- returns true if its a guidance, else returns 0*/
+ returns 1 if its a guidance, else returns 0*/
 int isGuidance(char* word,keletVars *kv)
 {
-	/*if cmd matches one of them the total value will be 0*/
-	if ((strcmp(word, ".dw") && strcmp(word, ".dh") && strcmp(word, ".db") && strcmp(word, ".asciz")) == 0)
+	/*if cmd matches one of them return 1*/
+	if(strcmp(word,".dw") == 0) 
 		return 1;
+	if(strcmp(word,".dh") == 0) 
+		return 1;
+	if(strcmp(word,".db") == 0) 
+		return 1;
+	if(strcmp(word,".asciz") ==0)	
+		return 1;
+	/* if cmd is entry or extern raise flag*/
 	if ((strcmp(word, ".entry") == 0)) 
 	{	
 		kv->isEntry = 1;
@@ -320,16 +308,17 @@ enum errors my_atol(char w[], long *result,keletVars *kv)
 {
 	char *str;
 	errno = 0;
-	
+	/*make sure w is not an empty string*/
 	if(w[0] == '\0')
 		return invalid;
+	/* convert w to long*/
 	*result = strtol(w, &str, 10);
-	if(strlen(str) > 0)
+	if(strlen(str) > 0)/* there are invalid characters in the number */
 	{
 		printError("parameter is not an integer");
 		return invalid;
 	}
-	if (errno > 0) /*the number is bigger than long*/
+	if (errno > 0) /*the number cant fit in a long*/
 	{
 		printError("number is too big to fit in long");
 		return invalid;

@@ -3,6 +3,7 @@
 
 #include "instructions.h"
 #include "constants.h"
+#include "files.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -12,19 +13,6 @@
 
 #define R_ARI_VARS 3
 #define R_CPY_VARS 2
-
-typedef struct keletVars{
-	char line[MAX_INPUT_LINE + 1];
-	char *cmd, *label, *file, *nextChar;
-	int charsChecked, row, isLabel, isInstruction, isExtern, isEntry, lineLength;
-	instruction cur_inst;
-	enum inst_type in_typ;
-	long numbers[MAX_INPUT_LINE];
-	unsigned long dc, ic;
-}keletVars;
-
-/*this function makes sure the file name is valid and if it is, opens the file to the pointer it gets*/
-enum errors getFile(keletVars *kv, FILE **fp);
 
 /*this function gets the command line and checks for correct length. if there is EOF it reports about it*/
 enum errors getCommandLine(FILE *fp, keletVars *kv);
@@ -39,13 +27,13 @@ enum errors getArgument(char** arg,keletVars *kv);
 /*this function gets the string inside the quotation marks for asciz lines, alerts on errors if occoured*/
 enum errors getAscizArgument(char** arg,keletVars *kv);
 
-/*this function gets the command from the command line and checks for correct name. alerts on errors if there are any*/
+/*this function gets the optinonal label and the command from the line and checks for correct name. alerts on errors if there are any*/
 enum errors getCommandName(keletVars *kv);
 
 /*this function checks if the word is a label*/
 int isLabel(char *word, keletVars *kv);
 
-/*this function checks if the label us legal*/
+/*this function checks if the label is legal*/
 int isLabelLegal(char *label, keletVars *kv);
 
 /*this function checks if the command is an instruction, if it is one then it saves the type and the pointer to it and returns 1,

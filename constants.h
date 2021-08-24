@@ -42,6 +42,16 @@ typedef struct instruction{
 	int opcode;
 	uint32 (*f)(int, long, int, int, int);
 } instruction;
+/*struct holding variables related to input*/
+typedef struct keletVars{
+	char line[MAX_INPUT_LINE + 1];
+	char *cmd, *label, *file, *nextChar;
+	int charsChecked, row, isLabel, isInstruction, isExtern, isEntry, lineLength;
+	instruction cur_inst;
+	enum inst_type in_typ;
+	long numbers[MAX_INPUT_LINE];
+	unsigned long dc, ic;
+}keletVars;
 
 #define NUMBER_OF_INSTRUCTIONS 27
 

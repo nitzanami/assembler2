@@ -14,6 +14,33 @@ FILE *getfilepointer(char* nameWithoutExtension, char *extension,char *mode)
 
 	return fp;
 }
+
+/*this function makes sure the file name is valid and if it is, opens the file to the pointer it gets*/
+enum errors getFile(keletVars *kv, FILE **fp)
+{
+	int i = 0;
+	char *extension;
+	
+	/*find the file extension*/
+	while (kv->file[i] != '.')
+		i++;
+	extension = kv->file + i; 
+	
+	if (strcmp(extension, ASSEMBLY_EXTENSION) == 0) /*a valid file for the assembler*/
+	{
+		if ((*fp = fopen(kv->file, "r")) == NULL)/*try to open file, report error if there was any */
+		{
+			printf("can't open file:%s\n", kv->file);
+			return invalid;
+		}
+		return valid;
+	}
+	else
+	{
+		printf("file %s: illegal file name for assembler\n", kv->file);
+		return invalid;
+	}
+}
 /* prints an instruction to the object file */
 void printInstructionToObj(FILE *fp, uint32 data, uint32 ic)
 {
