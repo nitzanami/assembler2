@@ -1,4 +1,4 @@
-label: .asciz "for checking"
+label:.asciz "for checking"
 add 
 add $3
 add $3, 5
@@ -29,3 +29,8 @@ call
 call $3
 call label, $3
 stop $3
+
+.entry externLabel
+ignored: .entry labelNotExist
+.extern externLabel
+
