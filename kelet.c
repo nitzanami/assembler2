@@ -66,7 +66,7 @@ enum errors getWord(char** word, keletVars *kv)
 	{
 		if(kv->isLabel)/*if we found a label already*/
 		{
-			printError("label instead of instruction");/*after the first label there is another label*/
+			printError("label instead of instruction or guidance");/*after the first label there is another label*/
 			return invalid;
 		}	
 		kv->isLabel = 1;
