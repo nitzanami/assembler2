@@ -1,15 +1,51 @@
 #include "second_transition.h"
 #include "instExecution.h"
 
+/*executes a line in the second transition, returns valid if there were no errors, else invalid*/
+static enum errors executeLine(symboltable *symbolTable,keletVars* kv, FILE *obj, FILE *ext)
+{
+	char *label;
+	if(getCommandName(kv) == valid)
+	{
+		if(kv->isEntry)/* on entry line*/
+		{
+			if(getArgument(&label,kv) == valid)/* read argument for entry*/
+			{
+				if(doesSymbolExist(symbolTable,label))
+				{
+					if(!(getAttributes(symbolTable,label) & EXTERN))/*entry must not be extern too*/
+						addAttributes(symbolTable,ENTRY,label);
+					else
+					{
+						printError("illegal entry and extern on the same label");
+						return invalid;
+					}
+				}
+				else
+				{
+					printError("label does not exist");
+					return invalid;
+				}
+			}
+		}
+		/* if there is an instruction, we encode it and if it isnt valid we return invalid */
+		else if(kv->isInstruction && (encode_instruction(symbolTable,kv,obj,ext) != valid))
+			return invalid;
+	}
+	else
+		return invalid;
+	return valid;
+}
 /*executes the second_transition and creates output files */
 enum errors second_transition(char file[],symboltable *symbolTable,dataimage *dataImage,uint32 icf, uint32 dcf)
 {
-	char *label;
+	/*declare variables*/
 	FILE *assembly, *obj, *ent, *ext;
 	enum errors lineErr = valid, errInFile = valid;
 	keletVars kv;
 	kv.row = 0;
 	kv.ic = MEMORY_START_ADDRESS;
+	
 	/*copy file name (for error messages)*/
 	kv.file = malloc(strlen(file)+1);
 	strcpy(kv.file,file);
@@ -21,59 +57,38 @@ enum errors second_transition(char file[],symboltable *symbolTable,dataimage *da
 	obj = getfilepointer(file,OBJECT_EXTENSION,"w");
 	ent = getfilepointer(file,ENTRY_EXTENSION,"w");
 	ext = getfilepointer(file,EXTERN_EXTENSION,"w");
+	
 	/* make sure the obj file title is needed*/
 	if((icf != MEMORY_START_ADDRESS) && (dcf != 0))
 		fprintf(obj,"     %lu %lu",icf - MEMORY_START_ADDRESS, dcf);
 	
-	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the enf of the file*/
+	while ((lineErr != eof) && (lineErr != emptyAndeof)) /*haven't reached the end of the file*/
 	{
-		lineErr = getCommandLine(assembly, &kv);
+		lineErr = getCommandLine(assembly, &kv);/* get the label if there is any, and then the instruction or guidance, setting flags accordingly*/
 		/*valid line and command*/
-		if (lineErr == valid || lineErr == eof) 
+		if (lineErr == valid || lineErr == eof) /*if the line is valid and not empty, analyze it*/
 		{	
-			if(getCommandName(&kv) == valid)
-			{
-				if(kv.isEntry)
-				{
-					if(getArgument(&label,&kv) == valid)
-					{
-						if(doesSymbolExist(symbolTable,label))
-						{
-							if(!(getAttributes(symbolTable,label) & EXTERN))/*entry must not be extern too*/
-								addAttributes(symbolTable,ENTRY,label);
-							else
-							{
-								printf("file: %s, line: %d :illegal entry and extern on the same label",kv.file,kv.row);
-								errInFile = invalid;
-							}
-						}
-						else
-						{
-							printf("file: %s, line: %d :label does not exist\n",kv.file,kv.row);
-							errInFile = invalid;
-						}
-					}
-				}
-				/* if there is an instruction, we encode it and if it isnt valid we mark it */
-				else if(kv.isInstruction && (encode_instruction(symbolTable,&kv,obj,ext) != valid))
-					errInFile = invalid;
-			}
-			else
+			if(executeLine(symbolTable,&kv,obj,ext) != valid)
 				errInFile = invalid;
 		}
-		else if(lineErr == invalid)
+		if(lineErr == invalid)
 			errInFile = invalid;
 	}
 	free(kv.file);
+	/*writes data image to file after code image */
 	writeDataToFile(dataImage,kv.ic,obj);
 	createEntFile(ent,symbolTable);
+	/* delete files if there was error or if the files are empty*/
 	finalizeFiles(file,obj,ent,ext,errInFile);
 	return errInFile;
 }
+/* encodes an instruction and adds it to the object file, if the instruction used an extern label print it to extern file.
+   if there was an error in the encoding return invalid */
 enum errors encode_instruction(symboltable *symbolTable, keletVars *kv,FILE *objfp, FILE *extfp)
 {
 	enum errors err = valid;
 	uint32 result;
+	/* executre the correct fucntion according to the instruction type*/
 	switch(kv->in_typ)
 	{
 	case Ra:
@@ -103,6 +118,7 @@ enum errors encode_instruction(symboltable *symbolTable, keletVars *kv,FILE *obj
 	}
 	if(err == invalid)
 		return invalid;
+	/* call the correct instruction encode with the parameters */
 	result = kv->cur_inst.f(kv->numbers[0], kv->numbers[1], kv->numbers[2], kv->cur_inst.opcode, kv->cur_inst.funct);
 	
 	printInstructionToObj(objfp, result, kv->ic);
