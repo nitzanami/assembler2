@@ -3,7 +3,7 @@
 
 labelShouldNotdefine: .entry checkIfDefinedHere
 labelShouldNotdefine: .entry checkIfDefinedHere2
-
+.entry checkIfDefinedHere
 checkIfDefinedHere: add $4, $3, $5
 checkIfDefinedHere2: .asciz "123 567 9"
 
@@ -17,7 +17,7 @@ MMMM:         ori $19     ,	-23458	, $0
 jmp label2
 call label
 END: stop
-
+la exLabel
 blt $4, $30, END
 
 ;end of file
