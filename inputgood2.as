@@ -1,113 +1,89 @@
-;Written by Barr Caplan  
-			
-jmp	iWillReturn2
-jmp iWillReturn
+		
+la	label
+call AscizLabel
+jmp $7
 
-;optional warning:
-WarnMe:	.entry	iWillReturn
+notInSymbolTable:	.entry	label
 
-iWillReturn:	.dh	1,2,14,8   
-iWillReturn2:	.asciz	"He will Return!" 
+label:	.dh	1,2,14,8
+.asciz "maximum line length is eighty characters- this line is exactly that len"
 
 
-jmp	iWillReturn2
-jmp iWillReturn    		
+;Data Commands 
+dbLabel: .db		+34, -4, 5   , -9, 16, 127, -128 
+dhLabel: .dh		+34, -4, 5   , -9, 16,-32768,32767 
+dwLabel: .dw		+34, -4, 5   , -9, 16,-2147483648,2147483647  
+AscizLabel:	.asciz	"words are weird"
+		.asciz	"!@#$3%^&scd45Tt45y6uU87L"    
+		.asciz	"	"		
+
+		
 ;	R Commands
-;				reg reg reg
-HelloR:	add		$0 ,$1 ,$2  
-		sub		$3 ,$4 ,$5
-		and		$6 ,$7 ,$8
-		or		$9 ,$10,$11
-		nor		$12,$13,$14 
-;				reg reg
-		move	$15,$16
-		mvhi	$18,$19
-		mvlo	$21,$22
+commandR:	add	$4 ,$15 ,$12
+		sub	$17 ,$24 ,$25
+		and	$2 ,$7 ,$8
+commandR2:	or	$13 ,$10,$18
+		nor	$2,$5,$14
+		
+commandR3:	move	$5,$6
+		mvhi	$23,$19
+		mvlo	$9,$2
 
 ;	I Commands
-;				reg		immed	reg
-HelloI:	addi	$24  ,	123  ,  $25
-		subi	$26 , 	0	,	$27  
-		andi	$28,	-30,	$29
-		ori		$30,-32768,$31 
-		nori	$17,32767,$20
-;				reg		reg		label
-		bne		$23 , 	$23,	LABE1   
-		beq		$16,	$6,		LABE1
-		blt		$15,	$0,		LABE2  
-		bgt		$20,	$15,	LABE2
-;				reg		immed	reg 
-		lb		$24  ,	123  ,  $25    
-		sb		$26 , 	0	,	$27
-		lw		$28,	-30,	$29
-		sw		$30,-32768,$31 
-		lh		$17,32767,$20
-		sh		$26 , 	0	,	$27  
+
+commandI:	addi	$14  ,	1233  ,  $1
+		subi	$26 , 	-34 ,$27  
+		andi	$18,	-30,	$19
+		ori	$31,-32768,$31 
+		nori	$17,67,$20
+
+		bne	$3 , 	$24,	END   
+commandI2:	beq	$26,	$26,	commandI
+		blt	$15,	$0,	commandJ  
+		bgt	$29,	$15,	commandR2
+
+		lb	$0,-32768,$31  
+		sb	$6 , 	0	,	$27
+		lw	$31,	-30,	$29
+		sw	$24  ,	576  ,  $30   
+commandI3:	lh	$17,32767,$20
+		sh	$15 , 	0	,	$9  
   
 ;	J Commands
-HelloJ:	jmp		LABE3
+commandJ:	jmp		maxLabelLengthIsExactlyThirty1c
 		jmp		$7
-		la		LABE3
-		la		LABE4
-		call	LABE4
-		call	LABE5
-BYE:	stop
+		la		commandI2
+		la		exLabel1
+		call	AscizLabel
+		call	exLabel1
+.entry AscizLabel
+.entry dbLabel
+.entry dhLabel
+.entry dbLabel
+.entry AscizLabel
 
-SameLine:	call	SameLine
-SameLine2:	bne		$23,$23,SameLine2
+callingItself:	call	callingItself
 
-;	Data Commands 
-LABE1:	.db		0,5,-3,+80, 1,1 ,-128,127  
-LABE2:	.dh		0,5,-3,+80, 1,1 ,-32768,32767 
-LABE3:	.dw		0,5,-3,+80, 1,1 ,-2147483648,2147483647  
-LABE4:	.asciz	"Weeeeeeeee!!!! Sting!!!!!!!"  
-LABE5:	.asciz	"now for some difficult string:"
-		.asciz	"!@#$%^&*()_+}{L'?><MKL"    
-		.asciz	" "
-		.asciz	"	"
-		.asciz	" "
-		.asciz	"   "
+jmp		exLabel2  
 
-DoLabel2:	jmp		DoLabel
-			bne		$15, $6, DoLabel2
-
-;optional warning:
-iWillReturn:	.extern		DoLabel
-iWillReturn2:	.entry		DoLabel2
-
-.entry LABE1
-.entry LABE2
-.entry LABE3
-.entry LABE4
-.entry LABE5
-.entry LABE5
-.entry LABE5
-
-.extern EXT1
-.extern EXT2
-.extern EXT3
-.extern EXT4
-.extern EXT4
-.extern EXT4
-
-		la		EXT1   
-		la		EXT2
-		jmp		EXT3  
-		jmp		EXT4
+la		dbLabel
+		
+		jmp		AscizLabel
 
 
-		la		EXT1
-		la		EXT1
-		call	EXT1
-		call	EXT1		
 
-LongButStilValidLabellllllllll: stop
-Add:	stop
-AsCiz:	stop
+.extern exLabel1   
+.extern exLabel2
+.extern    	exLabel2
+.extern 			exLabel2
 
-;optional warning:
-WarnMe:	.entry	iWillReturn2
+	la		exLabel1   
+				
 
-.asciz "this line is really long, but fits just right (exactly 80 characters)!"
+maxLabelLengthIsExactlyThirty1c: sw	$1  ,	-2132  ,  $0  
 
-jmp iWillReturn
+END:	stop
+
+
+
+

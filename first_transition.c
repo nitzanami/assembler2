@@ -4,7 +4,7 @@
 static enum errors executeLine(symboltable *symbolTable,dataimage *dataImage,keletVars* kv)
 {
 	char *label;
-	enum errors errorFound = valid;;
+	enum errors errorFound = valid;
 	errorFound = getCommandName(kv);
 	if(errorFound == valid)/* get the label if there is any, and then the instruction or guidance, setting flags accordingly*/
 	{
