@@ -68,19 +68,13 @@ enum errors execute_Ib(symboltable *symbolTable, keletVars *kv)
 		if(doesSymbolExist(symbolTable,label))
 		{
 			if (getAttributes(symbolTable, label) & EXTERN)/*label for this instruction must not be extern */
-			{
 				printError("label for this instruction must not be extern");
-				return invalid;
-			}
 			else
 			{
 				/*calculate the distance between the label and ic*/
 				distance = getValue(symbolTable,label) - kv->ic;
 				if(distance > MAX_IMMED || distance < MIN_IMMED)/*make sure the distance is legal*/
-				{
 					printError("immed value out of range, must fit in a 16 bit signed int");
-					return invalid;
-				}
 				else
 				{
 					kv->numbers[1] = distance;
@@ -90,10 +84,7 @@ enum errors execute_Ib(symboltable *symbolTable, keletVars *kv)
 			}
 		}
 		else
-		{
 			printError("this label does not exist");
-			return invalid;
-		}
 	}
 	return invalid;
 }
@@ -204,7 +195,5 @@ enum errors getImmed(long *immed,keletVars *kv)
 			return invalid;
 		}
 	}
-	
-	else
-		return invalid;
+	return invalid;
 }
